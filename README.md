@@ -1,40 +1,45 @@
-# Patch Analysis & Explainability Framework (PaPr, GradCAM, Naive Bayes & Hybrid Model)
+# PaPr: Critical Architectural Analysis & Optimization of Training-Free Pruning
 
-This project implements and compares multiple patch-level explainability and inference-reduction techniques, including **PaPr**, **Grad-CAM**, **Naive Bayes**, and a custom **Hybrid method** combining PaPr and Grad-CAM. The goal is to identify discriminative image regions, prune redundant patches, and evaluate how each method impacts model interpretability, speed, and accuracy.
+This repository contains the code, quantitative benchmarks, and interactive visual audit for my M.Tech thesis project. The research evaluates the architectural vulnerabilities of training-free patch pruning (PaPr) and proposes dynamic optimization strategies to recover accuracy and stabilize inference across diverse visual domains.
 
------
+---
 
-##  Features & Methods Overview
+## The 5 Research Objectives
 
-| Method | Type | Core Functionality |
+This project moves beyond standard patch pruning by conducting a rigorous 5-stage critical analysis of the framework:
+
+1. **Quantification of Saliency Drift (The Audit):** Measures the architectural disagreement (Intersection over Union) between the lightweight scoring model (MobileNetV2) and the backbone classifier (ResNet50).
+2. **Mitigation of Budget Rigidity (Optimization):** Implements an **Entropy-Aware Dynamic Controller** that calculates the visual variance ($\sigma$) of a scene to autonomously adjust the patch pruning budget, protecting complex object boundaries.
+3. **Saliency Fusion for Accuracy Recovery (Novel Strategy):** Introduces a **Hybrid Fusion Method** that element-wise multiplies general semantic features (PaPr) with decision-specific gradients (Grad-CAM), successfully mitigating Saliency Drift and recovering near-baseline accuracy.
+4. **Heuristic Baseline Ablation (Robustness Proof):** Evaluates naive statistical baseline methods (e.g., color saturation/edge density) to mathematically prove that effective pruning requires deep-feature semantic awareness.
+5. **Inference Latency Analysis (Practical Trade-off):** Quantifies the real-world computational bottleneck, proving that the overhead of generating saliency maps limits the practical speedup of training-free GFLOP reduction on standard GPU architectures.
+
+---
+
+## Methodology & Frameworks
+
+| Method | Core Functionality | Thesis Contribution |
 | :--- | :--- | :--- |
-| **PaPr (Ours)** | Training-free Pruning (CNN Feature-based) | Uses lightweight ConvNet features to derive **semantic importance** for efficient patch removal. |
-| **Grad-CAM** | Gradient-based Attention (DL Interpretabilty) | Computes gradients w.r.t. specific activations to highlight **class-specific informative regions**. |
-| **Naive Saturation** | Patch-level Baseline (Statistical) | A simple baseline that keeps areas based on **color intensity** for performance floor comparison. |
-| **Hybrid (PaPr + Grad-CAM)** | Pruning Ensemble (Novel Contribution) | Multiplies PaPr's general object map with Grad-CAM’s fine-grained localization to create a **superior, high-accuracy mask**. |
+| **Baseline (ResNet50)** | Standard Forward Pass | Establishes the 1.0x Speedup / 0% Accuracy Drop benchmark. |
+| **PaPr (Static)** | Semantic Feature Pruning | Analyzes the standard vulnerability of fixed "keep-ratios." |
+| **PaPr (Dynamic)** | Entropy-Aware Budgeting | Solves Obj 2 via standard deviation ($\sigma$) adaptive logic. |
+| **Hybrid (Fusion)** | PaPr + Grad-CAM Matrix | Solves Obj 3 by recovering accuracy lost to architectural drift. |
+| **Naive Saturation** | Pixel-Level Heuristics | Solves Obj 4 by proving superficial pruning fails catastrophically. |
 
+---
 
------
+## How to Run & Verify
 
-##  How to Run & Verify
+### 1. Quantitative Benchmark (The Hard Data)
+To regenerate the final 5-Objective CSV report:
+1. Open the **`PaPr_Final.ipynb`** notebook.
+2. Run the environment setup and data loading cells.
+3. Execute the `Master Benchmark Functions` and the `Comprehensive 5-Objective Research Audit` cells.
+4. **Result:** Outputs the final thesis data table and saves `final_mtech_audit_results.csv`.
 
-### 1\. Quantitative Benchmark (The Thesis Proof)
-
-To generate the final results table (including the Hybrid method) and save the CSV:
-
-1.  Open the **`PaPr_Fianl.ipynb`** file.
-2.  Run **all cells** sequentially (Cells 1 through 6).
-      * **Result:** Generates the final quantitative data (Accuracy vs. Time) based on **10,000 images**.
-
-### 2\. Visual Demonstration (The Panel Demo)
-
-To launch the interactive app showing the 4-way comparison:
-
-1.  Ensure you have completed the `ngrok` setup (as discussed previously).
-2.  Run the application file:
-
-
-
+### 2. Interactive Architectural Audit (The Live Demo)
+To launch the real-time visual workstation used for the Viva defense:
+1. Ensure your local environment (or Kaggle instance) has `streamlit` and `pyngrok` installed.
+2. Run the application via terminal:
 ```bash
 streamlit run app.py
-```
